@@ -49,6 +49,7 @@ class Gfx {
         VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& available_formats);
         VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& available_present_modes);
         VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+        void CreateImageViews();
 
 
     private:
@@ -61,6 +62,7 @@ class Gfx {
         VkSurfaceKHR surface;
         VkSwapchainKHR swapchain;
         std::vector<VkImage> swapchain_images;
+        std::vector<VkImageView> swapchain_image_view;
         VkFormat swapchain_image_format;
         VkExtent2D swapchain_extent;
 };
