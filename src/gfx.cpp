@@ -25,11 +25,11 @@ void Gfx::Loop() {
 }
 
 void Gfx::DrawFrame() {
-    vkWaitForFences(device, 1, &in_flight_fence, VK_TRUE, UINT16_MAX);
+    vkWaitForFences(device, 1, &in_flight_fence, VK_TRUE, UINT64_MAX);
     vkResetFences(device, 1, &in_flight_fence);
 
     uint32_t image_index;
-    vkAcquireNextImageKHR(device, swapchain, UINT16_MAX, image_available_semaphore, VK_NULL_HANDLE, &image_index);
+    vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, image_available_semaphore, VK_NULL_HANDLE, &image_index);
 
     vkResetCommandBuffer(command_buffer, 0);
     RecordCommandBuffer(command_buffer, image_index);
@@ -104,8 +104,6 @@ void Gfx::CreateWindow() {
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     window = glfwCreateWindow(1024, 1024, "VK", nullptr, nullptr);
-
-    glfwShowWindow(window);
 }
 
 void Gfx::VulkanInit() {
