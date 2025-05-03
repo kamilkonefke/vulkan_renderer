@@ -5,6 +5,7 @@
 #include <vulkan/vulkan.h>
 
 #include <optional>
+#include <iostream>
 #include <vector>
 #include <string>
 #include <fstream>
@@ -30,6 +31,10 @@ class Gfx {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME
         };
 
+        const std::vector<const char*> validation_layers = {
+            "VK_LAYER_KHRONOS_validation",
+        };
+
         struct SwapChainSupportDetails {
             VkSurfaceCapabilitiesKHR capabilities;
             std::vector<VkSurfaceFormatKHR> formats;
@@ -53,6 +58,11 @@ class Gfx {
             return buffer;
         }
 
+        static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
+            std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+            return VK_FALSE;
+        }
+
 
     public:
         void Run();
@@ -61,9 +71,14 @@ class Gfx {
         void VulkanInit();
         void Loop();
         void Cleanup();
+        void DrawFrame();
 
     private:
         void CreateInstance();
+        void CreateDebugMessenger();
+        VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
+        void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
+        std::vector<const char*> GetRequiredExtensions();
         void CreatePhysicalDevice();
         bool IsDeviceSuitable(VkPhysicalDevice device);
         void CreateLogicalDevice();
@@ -78,11 +93,16 @@ class Gfx {
         void CreateGraphicsPipeline();
         VkShaderModule CreateShaderModule(const std::vector<char>& code);
         void CreateRenderPass();
-
+        void CreateFramebuffers();
+        void CreateCommandPool();
+        void CreateCommandBuffer();
+        void RecordCommandBuffer(VkCommandBuffer command_buffer, uint32_t image_index);
+        void CreateSyncObjects();
 
     private:
         GLFWwindow* window = nullptr;
         VkInstance instance;
+        VkDebugUtilsMessengerEXT debug_messenger;
         VkPhysicalDevice physical_device;
         VkDevice device;
         VkQueue graphics_queue;
@@ -96,4 +116,10 @@ class Gfx {
         VkRenderPass render_pass;
         VkPipelineLayout pipeline_layout;
         VkPipeline pipeline;
+        std::vector<VkFramebuffer> swapchain_framebufers;
+        VkCommandPool command_pool;
+        VkCommandBuffer command_buffer;
+        VkSemaphore image_available_semaphore;
+        VkSemaphore render_finished_semaphore;
+        VkFence in_flight_fence;
 };
