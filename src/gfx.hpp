@@ -63,6 +63,10 @@ class Gfx {
             return VK_FALSE;
         }
 
+        static void FramebufferResizeCallback(GLFWwindow* window, int width, int height) {
+            auto gfx = reinterpret_cast<Gfx*>(glfwGetWindowUserPointer(window));
+            gfx->framebufferResized = true;
+        }
 
     public:
         void Run();
@@ -84,7 +88,9 @@ class Gfx {
         void CreateLogicalDevice();
         void CreateSurface();
         QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice physical_device);
+        void RecreateSwapChain();
         void CreateSwapChain();
+        void CleanupSwapChain();
         SwapChainSupportDetails QuerySwapchainSupport(VkPhysicalDevice device);
         VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& available_formats);
         VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& available_present_modes);
@@ -95,7 +101,7 @@ class Gfx {
         void CreateRenderPass();
         void CreateFramebuffers();
         void CreateCommandPool();
-        void CreateCommandBuffer();
+        void CreateCommandBuffers();
         void RecordCommandBuffer(VkCommandBuffer command_buffer, uint32_t image_index);
         void CreateSyncObjects();
 
@@ -118,8 +124,10 @@ class Gfx {
         VkPipeline pipeline;
         std::vector<VkFramebuffer> swapchain_framebufers;
         VkCommandPool command_pool;
-        VkCommandBuffer command_buffer;
-        VkSemaphore image_available_semaphore;
-        VkSemaphore render_finished_semaphore;
-        VkFence in_flight_fence;
+        std::vector<VkCommandBuffer> command_buffers;
+        std::vector<VkSemaphore> image_available_semaphores;
+        std::vector<VkSemaphore> render_finished_semaphores;
+        std::vector<VkFence> in_flight_fences;
+        uint32_t current_frame = 0;
+        bool framebufferResized = false;
 };
